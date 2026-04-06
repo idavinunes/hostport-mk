@@ -1,0 +1,21 @@
+server inner-tunnel {
+  authorize {
+    suffix
+    sql
+    pap
+  }
+
+  authenticate {
+    Auth-Type PAP {
+      pap
+    }
+  }
+
+  session {
+    sql
+  }
+
+  post-auth {
+    sql
+  }
+}
