@@ -7,6 +7,8 @@ const navItems = [
   { href: "/", label: "Resumo" },
   { href: "/settings", label: "Configuracoes" },
   { href: "/mikrotik", label: "MikroTik" },
+  { href: "/vouchers", label: "Vouchers" },
+  { href: "/online", label: "Online" },
   { href: "/clients", label: "Clientes" },
   { href: "/devices", label: "Dispositivos" },
   { href: "/plans", label: "Planos" },

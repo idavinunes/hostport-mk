@@ -8,10 +8,12 @@ from app.api.routes_audit_logs import router as audit_router
 from app.api.routes_auth import router as auth_router
 from app.api.routes_clients import router as clients_router
 from app.api.routes_devices import router as devices_router
+from app.api.routes_mikrotik import router as mikrotik_router
 from app.api.routes_plans import router as plans_router
 from app.api.routes_routers import router as routers_router
 from app.api.routes_sessions import router as sessions_router
 from app.api.routes_settings import router as settings_router
+from app.api.routes_vouchers import router as vouchers_router
 from app.core.config import settings
 from app.core.rate_limit import limiter
 
@@ -54,3 +56,5 @@ app.include_router(routers_router, prefix="/api/routers", tags=["routers"])
 app.include_router(sessions_router, prefix="/api/sessions", tags=["sessions"])
 app.include_router(audit_router, prefix="/api/audit-logs", tags=["audit"])
 app.include_router(settings_router, prefix="/api/settings", tags=["settings"])
+app.include_router(vouchers_router, prefix="/api/vouchers", tags=["vouchers"])
+app.include_router(mikrotik_router, prefix="/api/mikrotik", tags=["mikrotik"])

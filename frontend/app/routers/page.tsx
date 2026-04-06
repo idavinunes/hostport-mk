@@ -14,6 +14,14 @@ type RouterRecord = {
   routeros_version: "v6" | "v7";
   ip_address: string;
   site_name?: string | null;
+  integration_enabled: boolean;
+  management_transport: "api" | "api-ssl";
+  management_port: number;
+  management_username?: string | null;
+  management_verify_tls: boolean;
+  management_password_configured: boolean;
+  voucher_sync_enabled: boolean;
+  online_monitoring_enabled: boolean;
   hotspot_interface: string;
   hotspot_name: string;
   hotspot_profile_name: string;
@@ -35,12 +43,55 @@ type RouterRecord = {
   active: boolean;
 };
 
-const initialForm = {
+type RouterForm = {
+  name: string;
+  nas_identifier: string;
+  routeros_version: "v6" | "v7";
+  ip_address: string;
+  site_name: string;
+  integration_enabled: boolean;
+  management_transport: "api" | "api-ssl";
+  management_port: number;
+  management_username: string;
+  management_password: string;
+  management_verify_tls: boolean;
+  voucher_sync_enabled: boolean;
+  online_monitoring_enabled: boolean;
+  hotspot_interface: string;
+  hotspot_name: string;
+  hotspot_profile_name: string;
+  hotspot_address: string;
+  hotspot_network: string;
+  pool_name: string;
+  pool_range_start: string;
+  pool_range_end: string;
+  dhcp_server_name: string;
+  lease_time: string;
+  nas_port_type: string;
+  radius_src_address: string;
+  radius_timeout: string;
+  radius_interim_update: string;
+  configure_dns: boolean;
+  create_dhcp: boolean;
+  create_walled_garden: boolean;
+  create_api_walled_garden: boolean;
+  active: boolean;
+};
+
+const initialForm: RouterForm = {
   name: "",
   nas_identifier: "",
   routeros_version: "v7",
   ip_address: "",
   site_name: "",
+  integration_enabled: false,
+  management_transport: "api",
+  management_port: 8728,
+  management_username: "",
+  management_password: "",
+  management_verify_tls: false,
+  voucher_sync_enabled: true,
+  online_monitoring_enabled: true,
   hotspot_interface: "bridge-lan",
   hotspot_name: "hotspot-academia",
   hotspot_profile_name: "hsprof-academia",
@@ -68,7 +119,9 @@ export default function RoutersPage() {
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [testMessage, setTestMessage] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [testingId, setTestingId] = useState<string | null>(null);
 
   async function loadData(activeToken: string) {
     setRouters(await apiFetch<RouterRecord[]>("/routers", { token: activeToken }));
@@ -85,9 +138,15 @@ export default function RoutersPage() {
     return null;
   }
 
+  function resetForm() {
+    setEditingId(null);
+    setForm(initialForm);
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage("");
+    setTestMessage("");
     const activeToken = token;
     if (!activeToken) {
       return;
@@ -99,6 +158,8 @@ export default function RoutersPage() {
           const body = {
             ...form,
             site_name: form.site_name || undefined,
+            management_username: form.management_username || undefined,
+            management_password: form.management_password || undefined,
           };
 
           if (editingId) {
@@ -116,8 +177,7 @@ export default function RoutersPage() {
           }
 
           await loadData(activeToken);
-          setEditingId(null);
-          setForm(initialForm);
+          resetForm();
           setMessage("Roteador salvo com sucesso.");
         } catch (error) {
           setMessage(error instanceof ApiError ? error.message : "Falha ao salvar roteador");
@@ -126,11 +186,38 @@ export default function RoutersPage() {
     });
   }
 
+  async function testConnection(routerId: string) {
+    if (!token) {
+      return;
+    }
+    setTestingId(routerId);
+    setTestMessage("");
+    try {
+      const result = await apiFetch<{
+        identity?: string | null;
+        version?: string | null;
+        board_name?: string | null;
+      }>(`/mikrotik/routers/${routerId}/test-connection`, {
+        method: "POST",
+        token,
+      });
+      setTestMessage(
+        `Conexao OK: ${result.identity || "router"}${result.version ? ` (${result.version})` : ""}${
+          result.board_name ? ` - ${result.board_name}` : ""
+        }`,
+      );
+    } catch (error) {
+      setTestMessage(error instanceof ApiError ? error.message : "Falha ao testar conexao");
+    } finally {
+      setTestingId(null);
+    }
+  }
+
   return (
     <DashboardShell
       title="Roteadores e NAS"
-      description="Mantenha o inventario dos equipamentos que enviam autenticacao e accounting."
-      chip="Inventario de NAS"
+      description="Mantenha o inventario dos equipamentos, o onboarding RADIUS e as credenciais para integracao ativa com o MikroTik."
+      chip="Inventario + Integracao"
       onLogout={logout}
     >
       <section className="grid two-col">
@@ -160,6 +247,7 @@ export default function RoutersPage() {
                 </select>
               </div>
             </div>
+
             <div className="field-inline">
               <div className="field">
                 <label>NAS-Identifier</label>
@@ -169,7 +257,7 @@ export default function RoutersPage() {
                 />
               </div>
               <div className="field">
-                <label>IP</label>
+                <label>IP de gestao</label>
                 <input
                   value={form.ip_address}
                   onChange={(event) => setForm({ ...form, ip_address: event.target.value })}
@@ -182,6 +270,99 @@ export default function RoutersPage() {
                   onChange={(event) => setForm({ ...form, site_name: event.target.value })}
                 />
               </div>
+            </div>
+
+            <div className="field-inline">
+              <label className="checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={form.integration_enabled}
+                  onChange={(event) => setForm({ ...form, integration_enabled: event.target.checked })}
+                />
+                <span>Habilitar integracao ativa</span>
+              </label>
+              <label className="checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={form.active}
+                  onChange={(event) => setForm({ ...form, active: event.target.checked })}
+                />
+                <span>Roteador ativo</span>
+              </label>
+            </div>
+
+            <div className="field-inline">
+              <div className="field">
+                <label>Transporte de gestao</label>
+                <select
+                  value={form.management_transport}
+                  onChange={(event) => {
+                    const managementTransport = event.target.value as "api" | "api-ssl";
+                    setForm({
+                      ...form,
+                      management_transport: managementTransport,
+                      management_port: managementTransport === "api-ssl" ? 8729 : 8728,
+                    });
+                  }}
+                >
+                  <option value="api">API TCP 8728</option>
+                  <option value="api-ssl">API-SSL TCP 8729</option>
+                </select>
+              </div>
+              <div className="field">
+                <label>Porta de gestao</label>
+                <input
+                  type="number"
+                  value={form.management_port}
+                  onChange={(event) => setForm({ ...form, management_port: Number(event.target.value) || 0 })}
+                />
+              </div>
+              <div className="field">
+                <label>Usuario de gestao</label>
+                <input
+                  value={form.management_username}
+                  onChange={(event) => setForm({ ...form, management_username: event.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="field-inline">
+              <div className="field">
+                <label>Senha de gestao</label>
+                <input
+                  type="password"
+                  placeholder={editingId ? "Deixe em branco para manter a atual" : ""}
+                  value={form.management_password}
+                  onChange={(event) => setForm({ ...form, management_password: event.target.value })}
+                />
+              </div>
+              <label className="checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={form.management_verify_tls}
+                  onChange={(event) => setForm({ ...form, management_verify_tls: event.target.checked })}
+                />
+                <span>Validar certificado TLS</span>
+              </label>
+            </div>
+
+            <div className="field-inline">
+              <label className="checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={form.voucher_sync_enabled}
+                  onChange={(event) => setForm({ ...form, voucher_sync_enabled: event.target.checked })}
+                />
+                <span>Permitir sync de vouchers</span>
+              </label>
+              <label className="checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={form.online_monitoring_enabled}
+                  onChange={(event) => setForm({ ...form, online_monitoring_enabled: event.target.checked })}
+                />
+                <span>Permitir leitura online</span>
+              </label>
             </div>
 
             <div className="field-inline">
@@ -302,15 +483,6 @@ export default function RoutersPage() {
               />
             </div>
 
-            <label className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={form.active}
-                onChange={(event) => setForm({ ...form, active: event.target.checked })}
-              />
-              <span>Roteador ativo</span>
-            </label>
-
             <div className="field-inline">
               <label className="checkbox-row">
                 <input
@@ -335,9 +507,7 @@ export default function RoutersPage() {
                 <input
                   type="checkbox"
                   checked={form.create_walled_garden}
-                  onChange={(event) =>
-                    setForm({ ...form, create_walled_garden: event.target.checked })
-                  }
+                  onChange={(event) => setForm({ ...form, create_walled_garden: event.target.checked })}
                 />
                 <span>Criar walled garden</span>
               </label>
@@ -345,28 +515,20 @@ export default function RoutersPage() {
                 <input
                   type="checkbox"
                   checked={form.create_api_walled_garden}
-                  onChange={(event) =>
-                    setForm({ ...form, create_api_walled_garden: event.target.checked })
-                  }
+                  onChange={(event) => setForm({ ...form, create_api_walled_garden: event.target.checked })}
                 />
                 <span>Incluir API no walled garden</span>
               </label>
             </div>
 
             {message ? <div className="muted">{message}</div> : null}
+            {testMessage ? <div className="muted">{testMessage}</div> : null}
 
             <div className="button-row">
               <button className="button" type="submit" disabled={isPending}>
                 {isPending ? "Salvando..." : editingId ? "Atualizar roteador" : "Criar roteador"}
               </button>
-              <button
-                className="ghost-button"
-                type="button"
-                onClick={() => {
-                  setEditingId(null);
-                  setForm(initialForm);
-                }}
-              >
+              <button className="ghost-button" type="button" onClick={resetForm}>
                 Limpar
               </button>
             </div>
@@ -375,8 +537,8 @@ export default function RoutersPage() {
 
         <ResourceTable
           title="Roteadores registrados"
-          subtitle="Agora o cadastro guarda parametros suficientes para o gerador MikroTik preencher quase tudo sozinho."
-          columns={["Nome", "Versao", "NAS", "Interface", "Rede", "Status", "Acoes"]}
+          subtitle="Agora o cadastro tambem guarda credenciais para emitir vouchers e consultar usuarios online."
+          columns={["Nome", "Versao", "NAS", "Integracao", "Rede", "Status", "Acoes"]}
           rows={
             routers.length ? (
               <>
@@ -385,7 +547,9 @@ export default function RoutersPage() {
                     <td>{router.name}</td>
                     <td>{router.routeros_version}</td>
                     <td>{router.nas_identifier}</td>
-                    <td>{router.hotspot_interface}</td>
+                    <td>
+                      {router.integration_enabled ? `${router.management_transport}:${router.management_port}` : "Desligada"}
+                    </td>
                     <td>{router.hotspot_network}</td>
                     <td>
                       <span className="status-pill">{router.active ? "Ativo" : "Inativo"}</span>
@@ -402,6 +566,14 @@ export default function RoutersPage() {
                             routeros_version: router.routeros_version,
                             ip_address: router.ip_address,
                             site_name: router.site_name || "",
+                            integration_enabled: router.integration_enabled,
+                            management_transport: router.management_transport,
+                            management_port: router.management_port,
+                            management_username: router.management_username || "",
+                            management_password: "",
+                            management_verify_tls: router.management_verify_tls,
+                            voucher_sync_enabled: router.voucher_sync_enabled,
+                            online_monitoring_enabled: router.online_monitoring_enabled,
                             hotspot_interface: router.hotspot_interface,
                             hotspot_name: router.hotspot_name,
                             hotspot_profile_name: router.hotspot_profile_name,
@@ -422,9 +594,22 @@ export default function RoutersPage() {
                             create_api_walled_garden: router.create_api_walled_garden,
                             active: router.active,
                           });
+                          setTestMessage(
+                            router.management_password_configured
+                              ? "Senha de gestao configurada. Deixe em branco para manter."
+                              : "Defina a senha de gestao para habilitar integracao ativa.",
+                          );
                         }}
                       >
                         Editar
+                      </button>
+                      <button
+                        className="ghost-button"
+                        type="button"
+                        onClick={() => void testConnection(router.id)}
+                        disabled={testingId === router.id || !router.integration_enabled}
+                      >
+                        {testingId === router.id ? "Testando..." : "Testar conexao"}
                       </button>
                     </td>
                   </tr>
@@ -432,7 +617,7 @@ export default function RoutersPage() {
               </>
             ) : (
               <tr>
-                <td colSpan={7} className="empty-state">
+                <td colSpan={6} className="empty-state">
                   Nenhum roteador cadastrado.
                 </td>
               </tr>

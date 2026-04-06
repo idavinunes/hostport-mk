@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import hashlib
 
 from cryptography.fernet import Fernet
@@ -17,6 +19,16 @@ def encrypt_text(value: str) -> bytes:
     else:
         normalized = value.strip()
     return fernet.encrypt(normalized.encode("utf-8"))
+
+
+def encrypt_secret(value: str) -> bytes:
+    return fernet.encrypt(value.encode("utf-8"))
+
+
+def decrypt_secret(value: bytes | None) -> str | None:
+    if value is None:
+        return None
+    return fernet.decrypt(value).decode("utf-8")
 
 
 def hash_password(password: str) -> str:

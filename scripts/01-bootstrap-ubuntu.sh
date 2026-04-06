@@ -2,6 +2,7 @@
 set -Eeuo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
+INSTALL_DIR="${INSTALL_DIR:-/opt/wifi-portal}"
 
 apt-get update
 apt-get upgrade -y
@@ -49,10 +50,9 @@ fi
 TARGET_USER="${SUDO_USER:-$USER}"
 usermod -aG docker "$TARGET_USER"
 
-install -d -m 0755 /opt/wifi-portal
-install -d -m 0755 /opt/wifi-portal/backups
-install -d -m 0755 /opt/wifi-portal/logs
-chown -R "$TARGET_USER:$TARGET_USER" /opt/wifi-portal
+install -d -m 0755 "$INSTALL_DIR"
+install -d -m 0755 "$INSTALL_DIR/backups"
+install -d -m 0755 "$INSTALL_DIR/logs"
+chown -R "$TARGET_USER:$TARGET_USER" "$INSTALL_DIR"
 
 echo "Bootstrap concluido. Faca logout/login para usar docker sem sudo."
-

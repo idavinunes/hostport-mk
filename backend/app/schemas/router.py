@@ -12,6 +12,13 @@ class RouterBase(BaseModel):
     routeros_version: str = Field(default="v7", pattern="^(v6|v7)$")
     ip_address: IPvAnyAddress
     site_name: str | None = None
+    integration_enabled: bool = False
+    management_transport: str = Field(default="api", pattern="^(api|api-ssl)$")
+    management_port: int = Field(default=8728, ge=1, le=65535)
+    management_username: str | None = Field(default=None, min_length=1, max_length=120)
+    management_verify_tls: bool = False
+    voucher_sync_enabled: bool = True
+    online_monitoring_enabled: bool = True
     hotspot_interface: str = Field(default="bridge-lan", min_length=2, max_length=120)
     hotspot_name: str = Field(default="hotspot-academia", min_length=2, max_length=120)
     hotspot_profile_name: str = Field(default="hsprof-academia", min_length=2, max_length=120)
@@ -34,7 +41,7 @@ class RouterBase(BaseModel):
 
 
 class RouterCreate(RouterBase):
-    pass
+    management_password: str | None = Field(default=None, min_length=1, max_length=255)
 
 
 class RouterUpdate(BaseModel):
@@ -43,6 +50,14 @@ class RouterUpdate(BaseModel):
     routeros_version: str | None = Field(default=None, pattern="^(v6|v7)$")
     ip_address: IPvAnyAddress | None = None
     site_name: str | None = None
+    integration_enabled: bool | None = None
+    management_transport: str | None = Field(default=None, pattern="^(api|api-ssl)$")
+    management_port: int | None = Field(default=None, ge=1, le=65535)
+    management_username: str | None = Field(default=None, min_length=1, max_length=120)
+    management_password: str | None = Field(default=None, min_length=1, max_length=255)
+    management_verify_tls: bool | None = None
+    voucher_sync_enabled: bool | None = None
+    online_monitoring_enabled: bool | None = None
     hotspot_interface: str | None = None
     hotspot_name: str | None = None
     hotspot_profile_name: str | None = None
@@ -68,5 +83,6 @@ class RouterResponse(RouterBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
+    management_password_configured: bool = False
     created_at: datetime
     updated_at: datetime

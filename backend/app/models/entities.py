@@ -125,6 +125,14 @@ class Router(Base):
     routeros_version: Mapped[str] = mapped_column(String(8), nullable=False, default="v7")
     ip_address: Mapped[str] = mapped_column(INET, nullable=False)
     site_name: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    integration_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    management_transport: Mapped[str] = mapped_column(String(16), nullable=False, default="api")
+    management_port: Mapped[int] = mapped_column(Integer, nullable=False, default=8728)
+    management_username: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    management_password_ciphertext: Mapped[Optional[bytes]] = mapped_column(LargeBinary, nullable=True)
+    management_verify_tls: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    voucher_sync_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    online_monitoring_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     hotspot_interface: Mapped[str] = mapped_column(String(120), nullable=False, default="bridge-lan")
     hotspot_name: Mapped[str] = mapped_column(String(120), nullable=False, default="hotspot-academia")
     hotspot_profile_name: Mapped[str] = mapped_column(
@@ -158,6 +166,38 @@ class Router(Base):
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
+
+    vouchers: Mapped[list["Voucher"]] = relationship(back_populates="router")
+
+
+class Voucher(Base):
+    __tablename__ = "vouchers"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    router_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("routers.id"), nullable=False)
+    username: Mapped[str] = mapped_column(String(120), nullable=False, unique=True)
+    password_ciphertext: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    profile_name: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    server_name: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    limit_uptime: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    sync_status: Mapped[str] = mapped_column(String(16), nullable=False, default="pending")
+    sync_error: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    mikrotik_user_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    synced_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+
+    router: Mapped[Router] = relationship(back_populates="vouchers")
 
 
 class AppSettings(Base):

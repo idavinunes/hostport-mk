@@ -128,6 +128,12 @@ export default function HomePage() {
           <Link className="page-link" href="/mikrotik">
             Gerar script MikroTik
           </Link>
+          <Link className="page-link" href="/vouchers">
+            Emitir vouchers
+          </Link>
+          <Link className="page-link" href="/online">
+            Ver usuarios online
+          </Link>
           <Link className="page-link" href="/plans">
             Abrir planos
           </Link>

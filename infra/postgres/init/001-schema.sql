@@ -72,6 +72,14 @@ CREATE TABLE routers (
   routeros_version TEXT NOT NULL DEFAULT 'v7' CHECK (routeros_version IN ('v6', 'v7')),
   ip_address INET NOT NULL,
   site_name TEXT,
+  integration_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+  management_transport TEXT NOT NULL DEFAULT 'api' CHECK (management_transport IN ('api', 'api-ssl')),
+  management_port INTEGER NOT NULL DEFAULT 8728 CHECK (management_port > 0 AND management_port <= 65535),
+  management_username TEXT,
+  management_password_ciphertext BYTEA,
+  management_verify_tls BOOLEAN NOT NULL DEFAULT FALSE,
+  voucher_sync_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  online_monitoring_enabled BOOLEAN NOT NULL DEFAULT TRUE,
   hotspot_interface TEXT NOT NULL DEFAULT 'bridge-lan',
   hotspot_name TEXT NOT NULL DEFAULT 'hotspot-academia',
   hotspot_profile_name TEXT NOT NULL DEFAULT 'hsprof-academia',
@@ -91,6 +99,24 @@ CREATE TABLE routers (
   create_walled_garden BOOLEAN NOT NULL DEFAULT TRUE,
   create_api_walled_garden BOOLEAN NOT NULL DEFAULT TRUE,
   active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE vouchers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  router_id UUID NOT NULL REFERENCES routers(id) ON DELETE RESTRICT,
+  username TEXT NOT NULL UNIQUE,
+  password_ciphertext BYTEA NOT NULL,
+  comment TEXT,
+  profile_name TEXT,
+  server_name TEXT,
+  limit_uptime TEXT,
+  active BOOLEAN NOT NULL DEFAULT TRUE,
+  sync_status TEXT NOT NULL DEFAULT 'pending' CHECK (sync_status IN ('pending', 'synced', 'failed')),
+  sync_error TEXT,
+  mikrotik_user_id TEXT,
+  synced_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -128,6 +154,7 @@ CREATE INDEX idx_clients_status ON clients(status);
 CREATE INDEX idx_devices_client_id ON devices(client_id);
 CREATE INDEX idx_client_plans_client_active ON client_plans(client_id, active);
 CREATE INDEX idx_routers_nas_identifier ON routers(nas_identifier);
+CREATE INDEX idx_vouchers_router_id ON vouchers(router_id);
 
 CREATE TRIGGER trg_clients_updated_at
 BEFORE UPDATE ON clients
@@ -146,6 +173,11 @@ EXECUTE FUNCTION set_updated_at();
 
 CREATE TRIGGER trg_routers_updated_at
 BEFORE UPDATE ON routers
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+CREATE TRIGGER trg_vouchers_updated_at
+BEFORE UPDATE ON vouchers
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
 
