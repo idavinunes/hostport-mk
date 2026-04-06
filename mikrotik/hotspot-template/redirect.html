@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    $(if logged-in == 'yes')
+    <meta http-equiv="refresh" content="0; url=$(link-status)">
+    $(else)
+    <meta http-equiv="refresh" content="0; url=$(link-login)">
+    $(endif)
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portal Wi-Fi | Redirecionando</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="portal-shell portal-shell-compact">
+    <main class="status-card">
+      <div class="brand-badge">Portal Wi-Fi</div>
+      <h1 class="status-title">Redirecionando</h1>
+      <p class="status-copy">
+        Estamos encaminhando voce para a pagina correta do portal.
+      </p>
+      <div class="button-row">
+        $(if logged-in == 'yes')
+        <a class="button button-primary" href="$(link-status)">Ir para status</a>
+        $(else)
+        <a class="button button-primary" href="$(link-login)">Ir para login</a>
+        $(endif)
+      </div>
+    </main>
+  </body>
+</html>

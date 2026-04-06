@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portal Wi-Fi | Tentar novamente</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="portal-shell">
+    <main class="portal-card">
+      <section class="brand-panel">
+        <div class="brand-badge">Portal Wi-Fi</div>
+        <h1 class="brand-title">Acesso controlado ao Wi-Fi</h1>
+        <p class="brand-copy">
+          O acesso e validado em tempo real. Revise as credenciais e tente novamente.
+        </p>
+        <ul class="brand-list">
+          <li>usuarios de clientes e vouchers usam a mesma tela</li>
+          <li>o HotSpot permanece centralizado em uma identidade visual unica</li>
+          <li>erros de login aparecem nesta mesma pagina</li>
+        </ul>
+        <div class="brand-note">
+          <strong>Cadastro:</strong> neste MVP, a criacao de acesso permanece no painel administrativo da operacao.
+        </div>
+      </section>
+
+      <section class="login-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Rede segura</p>
+            <h2 class="panel-title">Entrar na rede</h2>
+          </div>
+          <div class="router-chip">$(identity)</div>
+        </div>
+
+        $(if error)
+        <div class="alert alert-error">$(error)</div>
+        $(endif)
+
+        $(if plain-passwd == 'yes')
+        <form class="login-form" action="$(link-login-only)" method="post">
+          <input type="hidden" name="dst" value="$(link-orig)">
+          <input type="hidden" name="popup" value="true">
+
+          <label class="field">
+            <span>Usuario</span>
+            <input name="username" type="text" value="$(username)" autocomplete="username" placeholder="seu.usuario" required>
+          </label>
+
+          <label class="field">
+            <span>Senha</span>
+            <input name="password" type="password" autocomplete="current-password" placeholder="Sua senha de acesso" required>
+          </label>
+
+          <button class="button button-primary" type="submit">Tentar novamente</button>
+        </form>
+        $(else)
+        <div class="alert alert-warning">
+          Este HTML foi preparado para HotSpot com <strong>login-by=http-pap</strong>. Ajuste o profile do MikroTik antes de usar este template.
+        </div>
+        <a class="button button-secondary" href="$(link-login)">Recarregar portal</a>
+        $(endif)
+
+        <div class="support-card">
+          <h3>Se o erro persistir</h3>
+          <p>Verifique usuario, senha, cadastro manual ou o status do voucher liberado para este roteador.</p>
+          <p class="muted">A equipe pode validar o usuario no painel administrativo e acompanhar a autenticacao pelo RADIUS.</p>
+        </div>
+
+        <p class="footer-copy">
+          HotSpot: <strong>$(hostname)</strong>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

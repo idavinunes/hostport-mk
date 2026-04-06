@@ -25,6 +25,7 @@ Ele nao e exclusivo para academia. A base foi pensada para qualquer operacao que
 - Integracao ativa com MikroTik via API nativa para teste de conexao
 - Emissao de vouchers com escrita em `/ip/hotspot/user`
 - Leitura operacional de usuarios online direto do HotSpot
+- Pacote base de HTML customizado para HotSpot MikroTik em `mikrotik/hotspot-template`
 - Configuracao central da operacao para validar uma unica empresa
 - Scripts de bootstrap, deploy, backup e restore
 - Documentacao operacional e juridica inicial
@@ -73,11 +74,12 @@ docker compose up -d --build
 ## Estrutura principal
 
 ```text
-.
+. 
 ├── backend
 ├── docs
 ├── frontend
 ├── infra
+├── mikrotik
 ├── scripts
 ├── docker-compose.yml
 └── .env.example
@@ -191,6 +193,8 @@ Depois do cadastro do roteador:
 5. confirme no roteador se o RADIUS esta enviando requisicoes
 
 O guia complementar esta em [`docs/mikrotik-integration.md`](./docs/mikrotik-integration.md).
+
+Se voce quiser personalizar o HTML do portal no proprio MikroTik, use tambem o pacote em [`docs/mikrotik-hotspot-template.md`](./docs/mikrotik-hotspot-template.md).
 
 ### 8. Validar o fluxo real
 

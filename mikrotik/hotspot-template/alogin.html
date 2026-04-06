@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="refresh" content="2; url=$(link-status)">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portal Wi-Fi | Conectado</title>
+    <link rel="stylesheet" href="styles.css">
+    $(if popup == 'true')
+    <script>
+      window.open("$(link-status)", "hotspot_status", "toolbar=0,location=0,status=0,menubar=0,width=420,height=680");
+    </script>
+    $(endif)
+  </head>
+  <body class="portal-shell portal-shell-compact">
+    <main class="status-card">
+      <div class="brand-badge">Portal Wi-Fi</div>
+      <h1 class="status-title">Conexao liberada</h1>
+      <p class="status-copy">
+        O acesso foi autenticado com sucesso. Voce sera redirecionado automaticamente para o painel de sessao.
+      </p>
+      <div class="metric-grid">
+        <div class="metric">
+          <span class="metric-label">Usuario</span>
+          <strong>$(username)</strong>
+        </div>
+        <div class="metric">
+          <span class="metric-label">IP</span>
+          <strong>$(ip)</strong>
+        </div>
+      </div>
+      <div class="button-row">
+        <a class="button button-primary" href="$(link-status)">Abrir status</a>
+        $(if link-orig)
+        <a class="button button-secondary" href="$(link-orig-esc)">Destino original</a>
+        $(endif)
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portal Wi-Fi | Sessao encerrada</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="portal-shell portal-shell-compact">
+    <main class="status-card">
+      <div class="brand-badge">Portal Wi-Fi</div>
+      <h1 class="status-title">Sessao encerrada</h1>
+      <p class="status-copy">
+        A conexao foi finalizada com sucesso. Se precisar, voce pode autenticar novamente pelo portal.
+      </p>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <span class="metric-label">Usuario</span>
+          <strong>$(username)</strong>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Tempo online</span>
+          <strong>$(uptime)</strong>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <a class="button button-primary" href="$(link-login)">Entrar novamente</a>
+      </div>
+    </main>
+  </body>
+</html>

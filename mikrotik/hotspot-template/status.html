@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    $(if refresh-timeout-secs)
+    <meta http-equiv="refresh" content="$(refresh-timeout-secs)">
+    $(endif)
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portal Wi-Fi | Status da sessao</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="portal-shell portal-shell-compact">
+    <main class="status-card status-card-wide">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Sessao ativa</p>
+          <h1 class="panel-title">Voce esta conectado</h1>
+        </div>
+        <div class="router-chip">$(identity)</div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <span class="metric-label">Usuario</span>
+          <strong>$(username)</strong>
+        </div>
+        <div class="metric">
+          <span class="metric-label">IP</span>
+          <strong>$(ip)</strong>
+        </div>
+        <div class="metric">
+          <span class="metric-label">MAC</span>
+          <strong>$(mac)</strong>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Uptime</span>
+          <strong>$(uptime)</strong>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Download</span>
+          <strong>$(bytes-out-nice)</strong>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Upload</span>
+          <strong>$(bytes-in-nice)</strong>
+        </div>
+        $(if session-time-left)
+        <div class="metric">
+          <span class="metric-label">Tempo restante</span>
+          <strong>$(session-time-left)</strong>
+        </div>
+        $(endif)
+        $(if idle-timeout)
+        <div class="metric">
+          <span class="metric-label">Idle timeout</span>
+          <strong>$(idle-timeout)</strong>
+        </div>
+        $(endif)
+      </div>
+
+      <form action="$(link-logout)" method="post" class="logout-form">
+        <input type="hidden" name="erase-cookie" value="on">
+        <button class="button button-danger" type="submit">Encerrar sessao</button>
+      </form>
+
+      <p class="footer-copy">
+        Atualizacao automatica: <strong>$(refresh-timeout)</strong>
+      </p>
+    </main>
+  </body>
+</html>

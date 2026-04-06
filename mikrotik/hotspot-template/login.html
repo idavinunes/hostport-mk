@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portal Wi-Fi | Entrar</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="portal-shell">
+    <main class="portal-card">
+      <section class="brand-panel">
+        <div class="brand-badge">Portal Wi-Fi</div>
+        <h1 class="brand-title">Acesso controlado ao Wi-Fi</h1>
+        <p class="brand-copy">
+          Entre com o usuario e a senha fornecidos pela operacao. O acesso e autenticado pelo MikroTik e validado pelo servidor central.
+        </p>
+        <ul class="brand-list">
+          <li>login unificado para clientes, dispositivos e vouchers</li>
+          <li>sessao registrada com rastreabilidade operacional</li>
+          <li>layout pronto para uso em CHR e RouterOS v6/v7</li>
+        </ul>
+        <div class="brand-note">
+          <strong>Primeiro acesso:</strong> neste MVP, o cadastro do cliente continua sendo feito pela equipe no painel administrativo. O portal abaixo cuida do login, instrucoes e identidade visual.
+        </div>
+      </section>
+
+      <section class="login-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Rede segura</p>
+            <h2 class="panel-title">Entrar na rede</h2>
+          </div>
+          <div class="router-chip">$(identity)</div>
+        </div>
+
+        $(if error)
+        <div class="alert alert-error">$(error)</div>
+        $(endif)
+
+        $(if plain-passwd == 'yes')
+        <form class="login-form" action="$(link-login-only)" method="post">
+          <input type="hidden" name="dst" value="$(link-orig)">
+          <input type="hidden" name="popup" value="true">
+
+          <label class="field">
+            <span>Usuario</span>
+            <input name="username" type="text" value="$(username)" autocomplete="username" placeholder="seu.usuario" required>
+          </label>
+
+          <label class="field">
+            <span>Senha</span>
+            <input name="password" type="password" autocomplete="current-password" placeholder="Sua senha de acesso" required>
+          </label>
+
+          <button class="button button-primary" type="submit">Conectar agora</button>
+        </form>
+        $(else)
+        <div class="alert alert-warning">
+          Este HTML foi preparado para HotSpot com <strong>login-by=http-pap</strong>. Ajuste o profile do MikroTik antes de usar este template.
+        </div>
+        <a class="button button-secondary" href="$(link-login)">Recarregar portal</a>
+        $(endif)
+
+        <div class="support-card">
+          <h3>Suporte e cadastro</h3>
+          <p>
+            Se voce ainda nao recebeu credenciais, direcione o usuario para o atendimento local ou para o fluxo de cadastro definido pela operacao.
+          </p>
+          <p class="muted">
+            Para evoluir este portal para autoatendimento, o proximo passo e criar uma pagina publica de cadastro e libera-la no walled-garden.
+          </p>
+        </div>
+
+        <p class="footer-copy">
+          HotSpot: <strong>$(hostname)</strong>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
