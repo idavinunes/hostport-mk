@@ -256,3 +256,7 @@ Depois disso, siga a mesma configuracao funcional pelo painel.
 - [ ] `radcheck` e `radreply` retornando dados
 - [ ] MikroTik apontando para o servidor na porta UDP 1812/1813
 - [ ] Login RADIUS funcionando com um cliente ativo
+
+## Roadmaps Futuros
+
+- [VPN para integracao MikroTik](./docs/roadmap-vpn-mikrotik.md): planejamento para manter portal publico em `HTTPS` e levar RADIUS, accounting e gestao do roteador para um tunel privado.
