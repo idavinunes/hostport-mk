@@ -134,6 +134,9 @@ export default function HomePage() {
           <Link className="page-link" href="/online">
             Ver usuarios online
           </Link>
+          <Link className="page-link" href="/reports">
+            Abrir relatorios
+          </Link>
           <Link className="page-link" href="/plans">
             Abrir planos
           </Link>

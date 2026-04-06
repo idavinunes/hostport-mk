@@ -16,6 +16,10 @@ def normalize_mac(value: str) -> str:
     return ":".join(cleaned[i : i + 2] for i in range(0, len(cleaned), 2))
 
 
+def normalize_mac_compact(value: str) -> str:
+    return value.replace("-", "").replace(":", "").replace(".", "").upper()
+
+
 def hash_text(value: str) -> str:
     if len(normalize_digits(value)) in {11, 14}:
         normalized = normalize_digits(value)

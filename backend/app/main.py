@@ -10,6 +10,7 @@ from app.api.routes_clients import router as clients_router
 from app.api.routes_devices import router as devices_router
 from app.api.routes_mikrotik import router as mikrotik_router
 from app.api.routes_plans import router as plans_router
+from app.api.routes_reports import router as reports_router
 from app.api.routes_routers import router as routers_router
 from app.api.routes_sessions import router as sessions_router
 from app.api.routes_settings import router as settings_router
@@ -54,6 +55,7 @@ app.include_router(devices_router, prefix="/api/devices", tags=["devices"])
 app.include_router(plans_router, prefix="/api/plans", tags=["plans"])
 app.include_router(routers_router, prefix="/api/routers", tags=["routers"])
 app.include_router(sessions_router, prefix="/api/sessions", tags=["sessions"])
+app.include_router(reports_router, prefix="/api/reports", tags=["reports"])
 app.include_router(audit_router, prefix="/api/audit-logs", tags=["audit"])
 app.include_router(settings_router, prefix="/api/settings", tags=["settings"])
 app.include_router(vouchers_router, prefix="/api/vouchers", tags=["vouchers"])
